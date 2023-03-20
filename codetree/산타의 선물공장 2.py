@@ -1,6 +1,7 @@
-import sys
+#import sys
 #==================================
-sys.stdin = open("input.txt", "r")
+#sys.stdin = open("input.txt", "r")
+#my = open("my_output.txt", "w")
 MAX_M, MAX_N = 100000,100000
 prv, nxt = [-1] * (MAX_M+1), [-1]*(MAX_M+1)
 head, tail, num_gift = [-1]*(MAX_N+1),[-1]*(MAX_N+1),[0]*(MAX_N+1)
@@ -35,11 +36,10 @@ def moveall_200(cmd):
     if num_gift[m_src] == 0:
         print(num_gift[m_dst])
         return
+
     if num_gift[m_dst] == 0:
         head[m_dst] = head[m_src]
         tail[m_dst] = tail[m_src]
-        head[m_src] = -1
-        tail[m_src] = -1
     else: # 양쪽 다 있을 경우
         #연결 관계 갱신
         ori_head = head[m_dst]
@@ -49,35 +49,43 @@ def moveall_200(cmd):
 
         #머리/꼬리 갱신
         head[m_dst] = head[m_src]
-        tail[m_dst] = tail[m_dst]
-        head[m_src] = -1
-        tail[m_src] = -1
+        #tail[m_dst] = tail[m_dst]
+    head[m_src] = -1
+    tail[m_src] = -1
     
     #상자 개수 갱신
     num_gift[m_dst] += num_gift[m_src]
     num_gift[m_src] = 0 
     
     print(num_gift[m_dst])
+    #my.writelines(str(num_gift[m_dst])+"\n")
 
 
 def pop_head(li):
     #비어있으면 -1 리턴
     if not num_gift[li]:
         return -1
+    
+    #노드가 1개라면 head, tail 전부 삭제 후 return
+    if num_gift[li] == 1:
+        ret = head[li]
+        head[li] = tail[li] = -1
+        num_gift[li] -=1
+        return ret
+    
     #비어있지 않으면 head 리턴하면서 연결관계 끊어주기
-    else:
-        ori_head = head[li] #ori_head = 8
-        # head[li] = nxt[ori_head] #head[3] = nxt[8] => head[3] = 9
-        # nxt[ori_head] = -1 #nxt[8] = -1
-        # prv[nxt[ori_head]] = -1 #prv[nxt[8]]
-        head[li], nxt[ori_head], prv[nxt[ori_head]] = nxt[ori_head], -1, -1
-        num_gift[li]-=1
+    ori_head = head[li] #ori_head = 8
+    # head[li] = nxt[ori_head] #head[3] = nxt[8] => head[3] = 9
+    # nxt[ori_head] = -1 #nxt[8] = -1
+    # prv[nxt[ori_head]] = -1 #prv[nxt[8]]
+    head[li], nxt[ori_head], prv[nxt[ori_head]] = nxt[ori_head], -1, -1
+    num_gift[li]-=1
 
-        if ori_head==8:
-            print("ori_head==8에서 디버깅")
-            debug()
+    #if ori_head==8:
+        #print("ori_head==8에서 디버깅")
+        #debug()
 
-        return ori_head
+    return ori_head
     
 def push_head(num, li):
     if num==-1:
@@ -102,6 +110,7 @@ def exchange_front_300(cmd):
     push_head(src_res, m_dst)
     push_head(dst_res, m_src)
     print(num_gift[m_dst])
+    #my.writelines(str(num_gift[m_dst])+"\n")
     #debug()
 
 def split_400(cmd):
@@ -115,15 +124,17 @@ def split_400(cmd):
     for i in to_move:
         push_head(i, m_dst)
     print(num_gift[m_dst])
+    #my.writelines(str(num_gift[m_dst])+"\n")
 
 
 def getPresentInfo_500(p_num):
     #for i in getIdx(p_num)
     p_num=p_num[0]
-    a = prv[p_num] if prv[p_num] !=0 else -1
-    b = nxt[p_num] if nxt[p_num] !=0 else -1
+    a = prv[p_num]# if prv[p_num] !=-1 else -1
+    b = nxt[p_num]# if nxt[p_num] !=-1 else -1
 
     print(a+2*b)
+    #my.writelines(str(a+2*b)+"\n")
             
 def getBeltInfo_600(b_num):
     b_num=int(b_num[0])
@@ -134,6 +145,8 @@ def getBeltInfo_600(b_num):
     c = num_gift[b_num]
     
     print(a+2*b+3*c)
+    #my.writelines(str(a+2*b+3*c)+"\n")
+
 
 q = int(input())
 cmd = list(map(int, input().split()))
@@ -142,9 +155,10 @@ factory = build_100(cmd[1:])
 for i in range(q-1):
     cmd = list(map(int, input().split()))
     
-    if cmd[0] == 200: moveall_200(cmd[1:]); debug()
-    if cmd[0] == 300: exchange_front_300(cmd[1:]); debug()
-    if cmd[0] == 400: split_400(cmd[1:]); debug()
-    if cmd[0] == 500: getPresentInfo_500(cmd[1:]); debug()
-    if cmd[0] == 600: getBeltInfo_600(cmd[1:]); debug()
+    if cmd[0] == 200: moveall_200(cmd[1:])#; debug()
+    if cmd[0] == 300: exchange_front_300(cmd[1:])#; debug()
+    if cmd[0] == 400: split_400(cmd[1:])#; debug()
+    if cmd[0] == 500: getPresentInfo_500(cmd[1:])#; debug()
+    if cmd[0] == 600: getBeltInfo_600(cmd[1:])#; debug()
 
+#my.close()
