@@ -1,11 +1,19 @@
-import sys
-sys.stdin = open("input.txt", "r")
+"""
+5 5 5 2
+0 0 0 5 2 
+0 4 0 0 0 
+1 0 4 0 0 
+-1 0 3 0 0 
+0 0 0 3 0
+res: 85
+"""
+import sys; sys.stdin = open("input.txt", "r")
 
 ddr=[-1,-1,1,1]
 ddc=[-1,1,-1,1]
 dr=[-1,1,0,0]
 dc=[0,0,-1,1]
-INF = 9999999999
+INF = 99
 
 n, m, k, C = map(int, input().split())
 tree=[]
@@ -20,6 +28,7 @@ for _ in range(n):
 
 
 def debug():
+  return
   print("***debug***")
   print(f"격자크기 n= {n}")
   print(f"박멸 진행년수 m= {m}")
@@ -56,12 +65,13 @@ def adjTreeSpread(r, c, tn):
     nr, nc = r+dr[i], c+dc[i]
     if 0<=nr<n and 0<=nc<n and tree[nr][nc]==0: #tree[r][c]가 양수 -> 나무가 있음, 음수면 제초제있는곳 또는 벽, 0이면 빈칸으로 뻗어나갈 수 있음
       bn += 1
-  
+
   #빈칸에 treenum//bn만큼 트리 추가하기
   for i in range(4):
     nr, nc = r+dr[i], c+dc[i]
     if 0<=nr<n and 0<=nc<n and tree[nr][nc]==0:
       tc[nr][nc] += tn//bn
+
 
       
   
@@ -77,26 +87,23 @@ def treeSpread():
       tree[r][c] += tc[r][c]
 
   tc=[[0 for i in range(n)] for j in range(n)] #tree candidate   
-  #print(f"tc={tc}")   
   
 #################### 3. 제초제 선택 ########################
 anti = [[0 for i in range(n)] for j in range(n)] #anti candidate
 init_anti=anti
-def anti_debug():
-  print("anti debug")
-  for _ in anti: print(_)
+
 
 def getDiagVal(r,c):
   anti[r][c]+=tree[r][c]
   nogo = [False]*4
+
   for i in range(4):
     for reach in range(1,k+1): #k번 만큼
       if nogo[i]: continue #한 번 벽이나 빈칸 맞았으면 그쪽 방향으로 더 진행 안함
       nr, nc = r+ddr[i]*reach, c+ddc[i]*reach
+
       if 0<=nr<n and 0<=nc<n and tree[nr][nc]>0: #범위 벗어나면 continue
         anti[r][c] += tree[nr][nc]
-        #if (r,c)==(1,1):
-          #print("nr,nc=",nr,nc,"tree,anti=",tree[nr][nc], anti[r][c])
       else:
         nogo[i] = True
         continue
@@ -111,12 +118,11 @@ def selectAnti():
       if tree[r][c]>0: 
         getDiagVal(r,c)
   
+
   mr, mc, mval = -1,-1,-1
   for r in range(n):
     for c in range(n):
-      #print(anti[r][c], mval)
       if anti[r][c] > mval:
-        #print(mr,mc, mval)
         mr, mc, mval = r, c, anti[r][c]
   
   anti = [[0 for i in range(n)] for j in range(n)] 
@@ -133,22 +139,29 @@ def spreadAnti(r, c):
   nogo = [False]*4
   for i in range(4):
     for reach in range(1,k+1): #k번 만큼
-      if nogo[i]: continue #한 번 벽이나 빈칸 맞았으면 그쪽 방향으로 더 진행 안함
+
+      if nogo[i]:
+
+        continue #한 번 벽이나 빈칸 맞았으면 그쪽 방향으로 더 진행 안함
+      
       nr, nc = r+ddr[i]*reach, c+ddc[i]*reach
+
       if nr<0 or nr>=n or nc<0 or nc>=n: #범위 벗어나면 nogo True & continue
         nogo[i] = True
         continue
       if tree[nr][nc]>0: # 나무 있으면
         tree[nr][nc] = -C #c년동안 제초제 작동
-      if tree[nr][nc]==0: #빈칸이면
+      elif tree[nr][nc]==0: #빈칸이면
         tree[nr][nc] = -C #c년동안 제초제 작동
         nogo[i] = True #그리고 더이상 진행안함
         continue
-      if tree[nr][nc]<0 : #이미 제초제가 있으면(벽 포함됨)
+      elif tree[nr][nc]<0 : #이미 제초제가 있으면(벽 포함됨)
         if tree[nr][nc]==-INF: 
           nogo[i]=True
           continue #벽이면 pass
+
         tree[nr][nc] = -C #제초제 c년으로 리셋
+        nogo[i] = True
   
 def meltAnti(): # 한 해가 지나서 제초제들 1년씩 녹슬었음
   for r in range(n):
@@ -159,18 +172,10 @@ def meltAnti(): # 한 해가 지나서 제초제들 1년씩 녹슬었음
 
 ans = 0
 for _ in range(m):
-  #print(f"{_}년차")
   growth()
-  #print("나무 자람")
   treeSpread()
-  #print("나무 성장")
-  #debug()
-
   mr, mc, _ans = selectAnti()
   ans += _ans
   meltAnti() 
   spreadAnti(mr, mc)
-  #debug(); #break
-#debug()
 print(ans)
-
