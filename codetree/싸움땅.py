@@ -3,16 +3,14 @@ sys.stdin = open("input.txt", "r")
 
 n, m, k = map(int, input().split()) #격자 크기, 플레이어 수, 라운드 수
 gun = [[[0] for _ in range(21)] for _ in range(21)] #총gun 맵
-p = [[-1,-1] for _ in range(m)] #플레이어 위치
-pd = [0 for i in range(m)] #플레이어 방향
+p = [[-1,-1] for _ in range(m)] # 플레이어 위치
+pd = [0 for i in range(m)] # 플레이어 방향
 dr = [-1,0,1,0]
 dc = [0,1,0,-1]
-ps = [0 for i in range(m)] #플레이어 초기능력치
-pg = [0 for i in range(m)] #플레이어가 갖고있는 총의 세기
+ps = [0 for i in range(m)] # 플레이어 초기능력치
+pg = [0 for i in range(m)] # 플레이어가 갖고있는 총의 세기
 point = [0 for i in range(m)]
 
-        
- 
 for i in range(n):
     li = list(map(int, input().split()))
     for j in range(len(li)):
@@ -23,6 +21,8 @@ for i in range(m):
     pd[i] = d
     ps[i] = s
 
+for i in gun:
+    print(i)
 
 def rotate90(pid):
     pd[pid] = (pd[pid] + 1) % 4
@@ -117,6 +117,7 @@ for _ in range(k):
             #진사람 총 내리고 전진
             dropGun(lose)
             loserWalk(lose)
+            getMaxGun(lose)
 
             #이긴 사람 공격력 높은 총 얻기
             getMaxGun(win)
@@ -138,3 +139,23 @@ for _ in range(k):
      #print(i)   
 for i in point:
     print(i, end = ' ')
+
+print("플레이어 방향")
+for i in pd:
+	print(i)
+
+print("플레이어 위치")
+for i in p:
+	print(i)
+
+print("플레이어 초기능력치")
+for i in ps:
+	print(i)
+
+print("플레이어 현재 갖고있는 총의 세기")
+for i in pg:
+	print(i)
+
+print("합계:")
+for i in point:
+	print(i)
