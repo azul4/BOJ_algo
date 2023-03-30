@@ -23,17 +23,23 @@ def bfs(_r, _c):
         [r, c] = q.popleft()
         for i in range(4):
             nr, nc = r+dr[i], c+dc[i]
+            if 0>nr or nr>=n or 0>nc or nc>=n: continue #격자 내 존재
             if visited[nr][nc]: continue
-            if 0<=nr<n and 0<=nc<n: #격자 내 존재
-                if arr[nr][nc] == 2: #이어지는사람
-                    visited[nr][nc]=1
-                    q.append([nr,nc])
-                    myteam.append([nr,nc])
-                if arr[nr][nc] == 3:
-                    visited[nr][nc] = 1
-                    #q append 안해도됨
-                    myteam.append([nr,nc])
-                    return myteam
+
+            if arr[nr][nc] == 2: #이어지는사람
+                visited[nr][nc]=1
+                q.append([nr,nc])
+                myteam.append([nr,nc])
+
+                #if next is 3, push and return
+                for j in range(4):
+                    nnr, nnc = nr+dr[j], nc+dc[j]
+                    if 0>nnr or nnr>=n or 0>nnc or nnc>=n: continue #격자 내 존재
+                    if visited[nnr][nnc]: continue
+                    if arr[nnr][nnc] == 3:
+                        visited[nnr][nnc] = 1
+                        myteam.append([nnr,nnc])
+                        return myteam
     return myteam
 
 def setRoute():
@@ -41,7 +47,6 @@ def setRoute():
         for c in range(n):
             if 1 <= route[r][c] <= 3:
                 route[r][c] = 4
-
 
 def setTeam():
     team = [deque() for _ in range(m)]
@@ -53,15 +58,14 @@ def setTeam():
                 i += 1
     return team
 
-
 def moveForward(team):
     for i in range(m):
         t = team[i]
-        team[i].pop()
         hr, hc = t[0]
         for j in range(4):
             nr, nc = hr+dr[j], hc+dc[j]
-            if [nr,nc] != t[1] and 0<=nr<n and 0<=nc<n and route[nr][nc]==4:
+            if 0<=nr<n and 0<=nc<n and [nr,nc] != t[1] and route[nr][nc]==4:
+                team[i].pop()
                 t.appendleft([nr,nc])
                 break
 
@@ -74,43 +78,38 @@ def throwBall(round):
     round2 = (round-1)%(4*n)
     if 0 <= round2 < n:
         sr, sc = round2, 0
-
     elif n <= round2 < 2*n:
         sr, sc = n-1, round2%n
-
     elif 2*n <= round2 < 3*n:
         sr, sc = n-1-(round2%n), n-1
-
     elif 3*n <= round2 < 4*n:
         sr, sc = 0, n-1-(round2%n)
-
     dir = quo
     return sr, sc, dir
+
 def changeTeamDir(team, i):
     team[i].reverse()
 
 def catchBall(sr, sc, dir, team):
     global score
     r, c = sr, sc
-    print(team)
-    for i in range(n):
-        for tidx in range(m):
-            for j in range(len(team[tidx])):
-                print(r, c, team[tidx][j])
-                if [r,c] == team[tidx][j]:
-                    print(f"{j}번째 위치")
-                    score += (j+1) ** 2
+    didx = 0
+    for i in range(n): #공 위치
+        for tidx in range(m): # 최대 5개의 덱
+            for curT in team[tidx]: #덱 하나 고르기
+                if [r,c] == curT:
+                    #print(f"{j}번째 위치")
+                    score += (didx+1) ** 2
                     changeTeamDir(team, tidx)
                     return
-            r, c = r+dr[dir], c+dc[dir]
+                didx += 1
+            didx = 0
+        r, c = r+dr[dir], c+dc[dir]
 
 team = setTeam()
 setRoute()
-t = team[0]
-
 for round in range(1,k+1):
     moveForward(team)
     sr, sc, dir = throwBall(round)
     catchBall(sr, sc, dir, team)
-
 print(score)
