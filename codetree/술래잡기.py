@@ -2,7 +2,7 @@ import sys; sys.stdin = open("input.txt", "r")
 n, m, h, k = map(int, input().split())
 
 run = [list(map(int, input().split())) for _ in range(m)]
-catch = [(n//2)+1, (n//2)+1]
+catch = [(n//2)+1, (n//2)+1, 0] #r,c, 보고있는방향
 tree = [list(map(int, input().split())) for _ in range(h)]
 
 dr = [-1,0,1,0]
@@ -41,17 +41,59 @@ def moveRunner(i):
         else:
             pass # 술래와 같은 위치가 될 거면 움직이지 않음
 
+visited = [[False]*100 for _ in range(100)]
+visited[catch[0]][catch[1]]=True
+cwalk = [catch]
+opposite=False
+def moveCatcher(round):
+    global catch, opposite, visited
 
-def moveCatcher():
-    pass
+
+    if opposite:
+        print("opposite ", end='')
+        catch = cwalk.pop()
+        catch[2] = (catch[2]+2)%4
+        if catch[0] + 1 == catch[1] or catch[0] + catch[1] == n+1 or catch[0] == catch[1] and not catch[:2] == [(n//2)+1, (n//2)+1]:
+            catch[2] = (catch[2]-1)%4
+        if catch[:2] == [(n//2)+1, (n//2)+1]:
+            opposite=False
+            catch = [(n//2)+1, (n//2)+1, 1]
+        print(f"{round}:{catch}")
+
+        return
+
+    if not opposite:
+        print("정방향 ", end='')
+        dir = catch[2]
+        nr, nc, ndir = catch[0] + dr[dir], catch[1] +dc[dir], (catch[2]+1) % 4
+        nnr, nnc = nr + dr[ndir], nc+dc[ndir]
+
+        visited[nr][nc] = True
+        if visited[nnr][nnc]:
+            catch = [nr,nc,catch[2]]
+        else:
+            catch = [nr,nc,ndir]
+        cwalk.append(catch)
+
+        if [nr,nc]==[1,1]:
+            catch = [1,1,1]
+            visited = [[False]*100 for _ in range(100)]
+            opposite=True
+            cwalk.pop()
+        print(f"{round}:{catch}")
+        return
+
+
+
 
 
 
 for round in range(1,k+1):
+    '''
     #1. 도망자 도망감
     for i in range(m):
         if calcDist(run[i][:2], catch) <= 3:
             moveRunner(round)
-
+    '''
     #2. 술래 달팽이모양으로 움직임
-    moveCatcher()
+    moveCatcher(round)
