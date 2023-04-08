@@ -74,7 +74,6 @@ for tc in range(1,T+1):
             t = willMeet(B[i], B[j])
             if t: mm[i][j] = t
 
-    #
     power = 0
     for key in info:
         power += B[key][3]
