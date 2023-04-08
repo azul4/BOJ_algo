@@ -25,7 +25,6 @@ def bt(t, fuel, pow):
     #don't change
     bt(t+1, fuel, pow)
 
-
 #main
 T = int(input())
 for tc in range(T):
